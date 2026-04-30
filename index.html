@@ -192,6 +192,20 @@ section { padding:7rem 5vw; }
 .bcard h3 { font-size:.98rem; font-weight:700; margin-bottom:.6rem; }
 .bcard p { font-size:.84rem; color:var(--muted); line-height:1.6; }
 
+/* SUPPORTED BY */
+.spsec { padding:5rem 5vw; position:relative; overflow:hidden; }
+.spsec::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(0,229,160,.15),rgba(0,204,255,.1),transparent); }
+.splogos { display:flex; align-items:center; justify-content:center; gap:5rem; flex-wrap:wrap; margin-top:3rem; }
+.splogo { display:flex; align-items:center; justify-content:center; padding:2rem 2.5rem; border:1px solid var(--border); border-radius:18px; background:rgba(255,255,255,.02); transition:border-color .35s,background .35s,transform .35s; position:relative; overflow:hidden; }
+.splogo::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(0,229,160,.04),rgba(0,204,255,.03)); opacity:0; transition:opacity .35s; }
+.splogo:hover { border-color:rgba(0,229,160,.2); background:rgba(255,255,255,.04); transform:translateY(-4px); }
+.splogo:hover::before { opacity:1; }
+.splogo img { height:70px; width:auto; object-fit:contain; opacity:0.85; transition:opacity .35s,transform .35s; }
+.splogo:hover img { opacity:1; transform:scale(1.04); }
+.splogo.logo-dark { background:rgba(255,255,255,0.06); }
+.splogo.logo-light { background:rgba(255,255,255,0.94); border-color:rgba(255,255,255,0.15); }
+.splogo.logo-light:hover { background:rgba(255,255,255,1); }
+
 /* CONCLUSION */
 .conc { text-align:center; padding:9rem 5vw; position:relative; overflow:hidden; }
 .cbg { position:absolute; inset:0; background:radial-gradient(ellipse 70% 60% at 50% 50%,rgba(0,229,160,.06),transparent 70%); }
@@ -219,6 +233,8 @@ footer p { font-size:.82rem; color:var(--muted); }
   .nav-links { display:none; }
   body { cursor:auto; }
   #cur,#cur-r { display:none; }
+  .splogos { gap:2rem; }
+  .splogo img { height:48px; }
 }
 </style>
 </head>
@@ -369,6 +385,21 @@ footer p { font-size:.82rem; color:var(--muted); }
   </div>
 </section>
 
+<!-- SUPPORTED BY SECTION -->
+<section class="spsec">
+  <div style="text-align:center;">
+    <h2 class="st2 rv" style="font-size:clamp(1.6rem,3vw,2.4rem); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;"><br> Sponsoring Institutions </h2>
+  </div>
+  <div class="splogos">
+    <div class="splogo logo-light rv">
+      <img src="ATRC__2_.png" alt="Advanced Technology Research Council" title="Advanced Technology Research Council">
+    </div>
+    <div class="splogo logo-light rv">
+      <img src="ATS_ACTVET_logo.png" alt="ACTVET — Applied Technology Schools" title="ACTVET — Applied Technology Schools">
+    </div>
+  </div>
+</section>
+
 <section class="conc" id="conclusion">
   <div class="cbg"></div>
   <div class="cring"></div>
@@ -393,76 +424,70 @@ footer p { font-size:.82rem; color:var(--muted); }
 </footer>
 
 <script>
-// 1. CURSOR LOGIC (Fixed double declaration)
+// COUNTER ANIMATION
+const counters = document.querySelectorAll('.counter');
+const counterObs = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const el = entry.target;
+      const target = +el.getAttribute('data-target');
+      const suffix = el.getAttribute('data-suffix') || '';
+      let current = 0;
+      const step = target / 60;
+      const timer = setInterval(() => {
+        current += step;
+        if (current >= target) {
+          el.textContent = target + suffix;
+          clearInterval(timer);
+        } else {
+          el.textContent = Math.floor(current) + suffix;
+        }
+      }, 16);
+      counterObs.unobserve(el);
+    }
+  });
+}, { threshold: 0.5 });
+
+counters.forEach(el => counterObs.observe(el));
+// 1. CURSOR
 const cur = document.getElementById('cur');
 const curR = document.getElementById('cur-r');
 let mx = 0, my = 0, rx = 0, ry = 0;
-
-document.addEventListener('mousemove', e => { 
-    mx = e.clientX; 
-    my = e.clientY; 
-});
-
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
 (function animC() {
-    cur.style.left = mx + 'px'; 
-    cur.style.top = my + 'px';
-    rx += (mx - rx) * 0.12; 
-    ry += (my - ry) * 0.12;
-    curR.style.left = rx + 'px'; 
-    curR.style.top = ry + 'px';
-    requestAnimationFrame(animC);
+  cur.style.left = mx + 'px'; cur.style.top = my + 'px';
+  rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+  curR.style.left = rx + 'px'; curR.style.top = ry + 'px';
+  requestAnimationFrame(animC);
 })();
-
-// Cursor Hover Effects
-document.querySelectorAll('a, button, .pc2, .mfac, .ztpil, .fc, .pi').forEach(el => {
-    el.addEventListener('mouseenter', () => { cur.classList.add('big'); curR.classList.add('big'); });
-    el.addEventListener('mouseleave', () => { cur.classList.remove('big'); curR.classList.remove('big'); });
+document.querySelectorAll('a, button, .pc2, .mfac, .ztpil, .fc, .pi, .splogo').forEach(el => {
+  el.addEventListener('mouseenter', () => { cur.classList.add('big'); curR.classList.add('big'); });
+  el.addEventListener('mouseleave', () => { cur.classList.remove('big'); curR.classList.remove('big'); });
 });
 
-// 2. PROGRESS BAR & NAV BACKGROUND
+// 2. PROGRESS BAR & NAV
 window.addEventListener('scroll', () => {
-    const prog = document.getElementById('prog');
-    if(prog) {
-        prog.style.width = (window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100) + '%';
-    }
-    document.getElementById('nb').classList.toggle('on', window.scrollY > 40);
+  const prog = document.getElementById('prog');
+  if(prog) prog.style.width = (window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100) + '%';
+  document.getElementById('nb').classList.toggle('on', window.scrollY > 40);
 });
 
-// 3. REVEAL ANIMATIONS (Intersection Observer)
-const obsOptions = { threshold: 0.1 };
+// 3. REVEAL ANIMATIONS
 const obs = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.classList.add('on');
-            obs.unobserve(entry.target);
-        }
-    });
-}, obsOptions);
-
+  entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('on'); obs.unobserve(entry.target); } });
+}, { threshold: 0.1 });
 document.querySelectorAll('.rv, .rvl, .rvr, .st').forEach(el => obs.observe(el));
 
-// 4. HERO CANVAS (Subtle Grid Animation)
+// 4. HERO CANVAS
 const canvas = document.getElementById('pc');
 if (canvas) {
-    const ctx = canvas.getContext('2d');
-    let w, h;
-    const resize = () => {
-        w = canvas.width = window.innerWidth;
-        h = canvas.height = window.innerHeight;
-    };
-    window.addEventListener('resize', resize);
-    resize();
-
-    function draw() {
-        ctx.clearRect(0, 0, w, h);
-        ctx.strokeStyle = 'rgba(0, 229, 160, 0.05)';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        // Drawing a very subtle moving line or static grid can go here
-        ctx.stroke();
-        requestAnimationFrame(draw);
-    }
-    draw();
+  const ctx = canvas.getContext('2d');
+  let w, h;
+  const resize = () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; };
+  window.addEventListener('resize', resize);
+  resize();
+  function draw() { ctx.clearRect(0, 0, w, h); requestAnimationFrame(draw); }
+  draw();
 }
 </script>
 </body>
